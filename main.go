@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -13,7 +14,7 @@ func main() {
 	layout := &buildings.LayoutStruct{
 		Room: []buildings.RoomStruct{},
 	}
-	for i := 1; i <= 5; i++ {
+	for i := 1; i <= 50; i++ {
 		layout.AddRoom()
 		// layout.Room = room
 		// fmt.Println(layout.Room)
@@ -21,4 +22,5 @@ func main() {
 
 	}
 	buildings.PrintRoom(layout)
+	fmt.Printf("\nRooms: %v\n", len(layout.Room))
 }

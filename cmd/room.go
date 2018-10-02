@@ -20,10 +20,26 @@ type LayoutStruct struct {
 	Room []RoomStruct
 }
 
+//Intersects Rooms. Make sure they do not over lap.
+func (room1 *RoomStruct) Intersects(room2 *RoomStruct) bool {
+	var x, y bool
+	if (room2.X1 >= room1.X1) && (room2.X1 >= room1.X2) {
+		x = true
+	}
+	if (room2.Y1 >= room1.Y1) && (room2.Y1 >= room1.Y2) {
+		y = true
+	}
+	if (x) && (y) {
+		fmt.Println("BUUUUUUUUUUUMP")
+		return true
+	} else {
+		return false
+	}
+}
+
 //AddRoom returns the x/y cords and the center
 func (a *LayoutStruct) AddRoom() {
 	//Build a room I think.
-	// newRoom := new(RoomStruct)
 
 	//Values Grid
 	x := randomInt(4, 51)
@@ -43,7 +59,18 @@ func (a *LayoutStruct) AddRoom() {
 	center[1] = math.Floor((float64(y1) + float64(y2)) / 2)
 	newRoom := RoomStruct{X1: x1, X2: x2, Y1: y1, Y2: y2, Center: center}
 
-	a.Room = append(a.Room, newRoom)
+	doIntersect := false
+	for _, existingRoom := range a.Room {
+		if (&newRoom).Intersects(&existingRoom) {
+			doIntersect = true
+			break
+		}
+	}
+	if !doIntersect {
+		a.Room = append(a.Room, newRoom)
+
+	}
+
 }
 
 func randomInt(min, max int) int {
