@@ -7,9 +7,9 @@ import (
 )
 
 func main() {
-
-	town := buildings.NewTown(50, 20)
+	//MapSize, RoomSize, Max number of rooms.
+	town := buildings.NewTown(200, 40, 50)
 	buildings.PrintRoom(town)
-	town.PrintTown()
 	fmt.Printf("\nRooms: %v\n", len(town.Room))
+	town.CreateImage()
 }

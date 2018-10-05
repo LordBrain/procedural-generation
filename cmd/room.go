@@ -2,16 +2,22 @@ package buildings
 
 import (
 	"fmt"
+	"image"
+	"image/color"
+	"image/png"
 	"math/rand"
+	"os"
 	"time"
 )
 
 //RoomStruct for building rooms
 type RoomStruct struct {
-	X1 int
-	X2 int
-	Y1 int
-	Y2 int
+	X1     int
+	X2     int
+	Y1     int
+	Y2     int
+	Width  int
+	Height int
 }
 
 //LayoutStruct for holding a bunch of rooms
@@ -24,19 +30,19 @@ type Point struct {
 	X, Y int
 }
 
-func NewTown(size int, buildings int) *LayoutStruct {
+func NewTown(mapSize, roomSize, buildings int) *LayoutStruct {
 	rand.Seed(time.Now().UnixNano())
-	block := make([][]int, size)
-	for i := 0; i < size; i++ {
-		block[i] = make([]int, size)
+	block := make([][]int, mapSize)
+	for i := 0; i < mapSize; i++ {
+		block[i] = make([]int, mapSize)
 	}
 	layout := &LayoutStruct{
 		Room:   []RoomStruct{},
 		Blocks: block,
-		Edges:  RoomStruct{X1: 1, Y1: 1, X2: size, Y2: size},
+		Edges:  RoomStruct{X1: 1, Y1: 1, X2: mapSize, Y2: mapSize},
 	}
 	for i := 1; i <= buildings; i++ {
-		layout.AddRoom()
+		layout.AddRoom(roomSize, mapSize)
 	}
 
 	return layout
@@ -60,14 +66,14 @@ func (room1 *RoomStruct) Intersects(room2 *RoomStruct) bool {
 }
 
 //AddRoom returns the x/y cords and the center
-func (a *LayoutStruct) AddRoom() {
+func (a *LayoutStruct) AddRoom(roomSize, mapSize int) {
 	//Build a room I think.
 
 	//Values Grid
-	x := randomInt(4, 51)
-	y := randomInt(4, 51)
-	width := randomInt(4, 51)
-	height := randomInt(4, 51)
+	x := randomInt(1, mapSize)
+	y := randomInt(1, mapSize)
+	width := randomInt(4, roomSize)
+	height := randomInt(4, roomSize)
 	var x1, x2, y1, y2 int
 
 	//Build the walls
@@ -75,7 +81,7 @@ func (a *LayoutStruct) AddRoom() {
 	x2 = x + width
 	y1 = y
 	y2 = y + height
-	newRoom := RoomStruct{X1: x1, X2: x2, Y1: y1, Y2: y2}
+	newRoom := RoomStruct{X1: x1, X2: x2, Y1: y1, Y2: y2, Width: width, Height: height}
 
 	doIntersect := false
 	for _, existingRoom := range a.Room {
@@ -121,48 +127,37 @@ func PrintRoom(r *LayoutStruct) {
 		for i := 0; i <= topWall; i++ {
 			fmt.Print("#")
 		}
-		fmt.Printf("\n%v\n", r.Room[i])
-	}
-
-}
-
-func (t *LayoutStruct) PrintTown() {
-	for _, row := range t.Blocks {
-		for _, col := range row {
-			if col == 0 {
-				fmt.Print(" ")
-			} else {
-				fmt.Print("#")
-			}
-		}
+		// fmt.Printf("\n%v\n", r.Room[i])
 		fmt.Println()
 	}
-}
-func (r *RoomStruct) Contains(p Point) bool {
-	return p.X >= r.X1 &&
-		p.Y >= r.Y1 &&
-		p.X <= r.X1+r.X2 &&
-		p.Y <= r.Y1+r.X2
-}
-func (room *LayoutStruct) SetPoint(p Point, cellType int) {
-	if room.Edges.Contains(p) {
-		room.Blocks[p.X][p.Y] = cellType
-	}
+
 }
 
-func (room *LayoutStruct) setBlock(newBlock *RoomStruct) {
-	for x := 0; x < newBlock.X2; x++ {
-		for y := 0; y < newBlock.Y2; y++ {
-			room.SetPoint(Point{X: x + newBlock.X1, Y: y + newBlock.Y1}, 1)
-		}
-	}
-}
+func (l *LayoutStruct) CreateImage() {
+	width := 200
+	height := 200
 
-func Contains(arr []int, item int) bool {
-	for _, v := range arr {
-		if v == item {
-			return true
+	upLeft := image.Point{0, 0}
+	lowRight := image.Point{width, height}
+
+	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
+
+	// Colors are defined by Red, Green, Blue, Alpha uint8 values.
+	cyan := color.RGBA{100, 200, 200, 0xff}
+	numRooms := len(l.Room)
+
+	for i := 0; i < numRooms; i++ {
+		// Set color for each pixel.
+		for x := l.Room[i].X1; x < l.Room[i].X2; x++ {
+			for y := l.Room[i].Y1; y < l.Room[i].Y2; y++ {
+
+				img.Set(x, y, cyan)
+
+			}
 		}
 	}
-	return false
+
+	// Encode as PNG.
+	f, _ := os.Create("image.png")
+	png.Encode(f, img)
 }
