@@ -51,10 +51,10 @@ func NewTown(mapSize, roomSize, buildings int) *LayoutStruct {
 //Intersects Rooms. Make sure they do not over lap.
 func (room1 *RoomStruct) Intersects(room2 *RoomStruct) bool {
 	var x, y bool
-	if (room2.X1 >= room1.X1) && (room2.X1 >= room1.X2) {
+	if (room2.X1 >= room1.X1) && (room2.X1 <= room1.X2) {
 		x = true
 	}
-	if (room2.Y1 >= room1.Y1) && (room2.Y1 >= room1.Y2) {
+	if (room2.Y1 >= room1.Y1) && (room2.Y1 <= room1.Y2) {
 		y = true
 	}
 	if (x) && (y) {
@@ -133,9 +133,9 @@ func PrintRoom(r *LayoutStruct) {
 
 }
 
-func (l *LayoutStruct) CreateImage() {
-	width := 200
-	height := 200
+func (l *LayoutStruct) CreateImage(size int) {
+	width := size
+	height := size
 
 	upLeft := image.Point{0, 0}
 	lowRight := image.Point{width, height}
@@ -144,9 +144,8 @@ func (l *LayoutStruct) CreateImage() {
 
 	// Colors are defined by Red, Green, Blue, Alpha uint8 values.
 	cyan := color.RGBA{100, 200, 200, 0xff}
-	numRooms := len(l.Room)
 
-	for i := 0; i < numRooms; i++ {
+	for i := 0; i < len(l.Room); i++ {
 		// Set color for each pixel.
 		for x := l.Room[i].X1; x < l.Room[i].X2; x++ {
 			for y := l.Room[i].Y1; y < l.Room[i].Y2; y++ {
